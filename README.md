@@ -7,8 +7,8 @@ Me gusta el estilo de Jekyll pero no me gusta ruby así que decidí escribir alg
 
 Para usar: 
 
-´´´
+```
 mkdir blog
 cd blog
 npm install fidalgo
-´´´
+```
