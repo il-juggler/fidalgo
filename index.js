@@ -3,7 +3,6 @@ var marked     = require('marked');
 var jade       = require('jade');
 var stylus = require('stylus');
 
-
 var generator = require('./generator');
 
 marked.setOptions({
@@ -26,7 +25,7 @@ var vConf = {
 };
 
 
-var virtusFileFn = require(path.resolve(process.cwd(), 'virtusfile'));
+var virtusFileFn = require(path.resolve(process.cwd(), 'fidalgo.config.js'));
 virtusFileFn(vConf);
 
 module.exports = generator(vConf);

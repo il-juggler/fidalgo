@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var express    = require('express');
 var app        = express();
 var fGenerator = require('./index.js');
@@ -12,6 +14,8 @@ FidalgoCLI.prototype.exec = function() {
 	if(arguments.length == 0) {
 		this.generate();
 		this.serve();
+	} else {
+		this[arguments[0]]();
 	}
 }
 
@@ -27,5 +31,13 @@ FidalgoCLI.prototype.serve = function() {
 }
 
 
+
+
+var args = JSON.parse(JSON.stringify(process.argv));
+args.shift();
+args.shift();
+
+
+
 var cli = new FidalgoCLI(fGenerator.d);
-cli.exec();
+cli.exec.apply(cli, args);
