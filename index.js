@@ -1,7 +1,8 @@
 var path       = require('path');
-var virtualize = require('./virtualize');
 var marked     = require('marked');
-var jade       = require('jade')
+var jade       = require('jade');
+
+var generator = require('./generator');
 
 marked.setOptions({
   renderer: new marked.Renderer(),
@@ -17,10 +18,12 @@ marked.setOptions({
 var vConf = {
 	md  : marked,
 	cwd : process.cwd(),
-	jade : jade
+	jade : jade, 
+	dafaultLayout : 'layout'
 };
 
-var virtusFileFn = require(path.resolve(process.cwd(), 'virtusfile'));
 
+var virtusFileFn = require(path.resolve(process.cwd(), 'virtusfile'));
 virtusFileFn(vConf);
-virtualize(vConf);
+
+module.exports = generator(vConf);
