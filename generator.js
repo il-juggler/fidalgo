@@ -29,24 +29,60 @@ function initialize (d) {
 	d.layouts    = {};
 	d.pages      = [];
 	d.categories = [];
+
+	var stylesPath = path.resolve(d.out, 'styles');
+
+	if( ! fs.existsSync(stylesPath) ) {
+		fs.mkdirSync(stylesPath);
+	}
 }
 
 
-
 function doGenerate (d) {
-	d.pages.forEach(function(page) {
-		
-		var locals = object_extend({site : d}, page.locals);
-		var layoutFn  = page.locals.layout;
-		layoutFn = (layoutFn) ? d.layouts[layoutFn] : d.layouts[d.defaultLayout];
+	generatePages(d);
+	generateCss(d);
+}
 
-		fs.writeFileSync(page.file, layoutFn(page.locals) );
+function generatePages(d) {
+	d.pages.forEach(function(page) {
+		var locals    = object_extend({site : d}, page);
+		var layoutFn  = page.layout;
+
+		layoutFn = (layoutFn) ? d.layouts[layoutFn] : d.layouts[d.defaultLayout];
+		fs.writeFileSync(page.settings.file, layoutFn(locals) );
 	});
 }
 
 
-function loadLayouts (d) {
+function generateCss(d) {
+	var pathStyle = path.resolve(d.cwd, d.src, 'styles/style.stylus');
+	var stContents;
+	var outPath = path.resolve(d.out, 'styles/style.css');
 
+	if(fs.existsSync(pathStyle)){
+		
+
+		stContents = fs.readFileSync(pathStyle).toString();
+
+
+		d.stylus.render(stContents, { filename: 'style.css' }, function(err, res) {
+
+			err && console.log(err);
+			console.log(res);
+
+
+			
+			if(!err){
+				
+				fs.writeFileSync(outPath, res);
+			}
+		});
+	} 
+}
+
+
+
+function loadLayouts (d) {
 	var _layoutsPath = path.resolve(d.cwd, d.src, 'layouts');
 
 	fs.readdirSync(_layoutsPath).forEach(function(ly) {
@@ -74,16 +110,18 @@ function loadPages (d) {
 			var fileContents = fs.readFileSync(fullFilePath).toString();
 			var data, content;
 			var split = fileContents.split( /\n\-{3,6}\n/);
+			content = d.md(fileContents);
 
-			if(split.length == 3) {
-				data    = JSON.parse( split[1] );
-				content = split[2]; 
+			var dataPath = path.resolve(_postPath, path.basename(filePath, MD) + '.json');
+			
+			if( fs.existsSync(dataPath) ) {
+				data = require(dataPath);
 			} else {
-				data    = {};
-				content = fileContents;
+				data = {};
 			}
 
-			content = d.md(content);
+
+			
 
 			var fullOutPathFile = path.resolve(
 				outPath, 
@@ -92,19 +130,23 @@ function loadPages (d) {
 
 			var inheritedData = {};
 
+			var page = object_extend(
+				{},
+				inheritedData,
+				data,
+			 	{
+					uri :'/', content : content
+				}
+			);
+
 			var locals = object_extend(
-				{layout : 'layout'}, 	//El básico solo pone layout por si no hay 
-				inheritedData,    		//inheritedData
-				data,             		//data
 				{
-					page : {uri :'/', content : content}
+					page :     page,
+					settings : {file : fullOutPathFile}
 				}  
 			);
 
-			d.pages.push({
-				file    : fullOutPathFile,
-				locals  : locals
-			});
+			d.pages.push(locals);
 		}
 	});
 }

@@ -1,6 +1,8 @@
 var path       = require('path');
 var marked     = require('marked');
 var jade       = require('jade');
+var stylus = require('stylus');
+
 
 var generator = require('./generator');
 
@@ -19,7 +21,8 @@ var vConf = {
 	md  : marked,
 	cwd : process.cwd(),
 	jade : jade, 
-	dafaultLayout : 'layout'
+	defaultLayout : 'layout',
+  stylus : stylus
 };
 
 
