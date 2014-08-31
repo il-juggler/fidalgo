@@ -17,3 +17,14 @@ ln -s node_modules/fidalgo/fidalgo.js fidalgo
 chmod a+x fidalgo
 ./fidalgo init
 ```
+
+
+## Por Hacer
+
+ * Uri de Páginas completas
+ * Páginas anidadas
+ * Inicialización
+ * Agregar la opción de datos por <fidalgo:data></fidalgo:data>
+ * Watch
+ * Archivos estáticos
+ * Documentación del config
