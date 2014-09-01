@@ -9,6 +9,7 @@ var HTML = '.html';
 var STYL = '.stylus';
 
 function Generator (site) {
+	
 	function generate () {
 		initialize(site);
 		loadLayouts(site);
@@ -17,7 +18,7 @@ function Generator (site) {
 	}
 
 	site.generator  = generate;
-	generate.d      =  site;
+	generate.d      = site;
 	generate.site   = site;
 
 	return generate;
@@ -41,11 +42,11 @@ function doGenerate (site) {
 }
 
 function generatePages(site) {
-	console.log(site);
 	site.pages.forEach(function(p) {
 		var locals  = object_extend({site : site}, p);
 		var layout  = getLayout(p);
-		writePage(p.settings.file, layout(locals) );
+		console.log('\x1B[34m' + locals.page.uri + '\x1B[39m')
+		writePage(p.settings.file, layout(locals));
 	});
 
 	function getLayout (p) {
@@ -56,6 +57,8 @@ function generatePages(site) {
 	function writePage (file,data) {
 		var fullPagePath = path.resolve(site.cwd,site.out,file);
 		var relPath = '';
+
+
 
 		path.dirname(file).split(path.sep).forEach(function(sub) {
 			relPath = path.join(relPath, sub);
@@ -133,29 +136,34 @@ function loadPages (site) {
 		var pageData     = getPageData(subPath, fileRawName);
 		var content      = site.md(fileContents); 
 
+
+		// page {fileContents: ---, data ---, content} 
+
 		
 		if(subPath == '' && fileRawName == 'index') {
 			uri = '';
 		} else {
-			uri = path.join(subPath, fileRawName);
+			uri = path.join(subPath,fileRawName);
 		}
 
 		var outFileName = path.join(uri, 'index.html');
 
 		uri = '/'.concat(uri);
 
-		var page = object_extend(
+		var lPageData = object_extend(
 			{title : fileRawName},
 			pageData, 
 			{uri : uri , content : content}
 		);
 
-		var settings  = {
-			uri  : uri,
-			file : outFileName
-		};
 
-		site.pages.push({page : page, settings : settings});
+		site.pages.push({
+			page     : lPageData,
+			settings : {
+				uri  : uri,
+				file : outFileName
+			}
+		});
 	}
 
 	function getPageData (subPath, fileRawName) {
