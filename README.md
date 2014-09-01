@@ -21,8 +21,7 @@ chmod a+x fidalgo
 
 ## Por Hacer
 
- * Uri de Páginas completas
- * Páginas anidadas
+ * Datos heredados
  * Inicialización
  * Agregar la opción de datos por <fidalgo:data></fidalgo:data>
  * Watch

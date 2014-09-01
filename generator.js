@@ -8,73 +8,78 @@ var MD   = '.md';
 var HTML = '.html';
 var STYL = '.stylus';
 
-function Generator (d) {
-	
+function Generator (site) {
 	function generate () {
-		initialize(d);
-		loadLayouts(d);
-		loadPages(d);
-		doGenerate(d);
+		initialize(site);
+		loadLayouts(site);
+		loadPages(site);
+		doGenerate(site);
 	}
 
-	d.genearator = generate;
-	generate.d   =  d;
+	site.generator  = generate;
+	generate.d      =  site;
+	generate.site   = site;
 
 	return generate;
 }
 
 
 
-function initialize (d) {
-	d.layouts    = {};
-	d.pages      = [];
-	d.categories = [];
+function initialize (site) {
+	site.layouts    = {};
+	site.pages      = [];
+	site.categories = [];
 
-	var stylesPath = path.resolve(d.out, 'styles');
+	var stylesPath = path.resolve(site.out,'styles');
+	mkDirIfNotExists(stylesPath);
+}
 
-	if( ! fs.existsSync(stylesPath) ) {
-		fs.mkdirSync(stylesPath);
+
+function doGenerate (site) {
+	generatePages(site);
+	generateCss(site);
+}
+
+function generatePages(site) {
+	console.log(site);
+	site.pages.forEach(function(p) {
+		var locals  = object_extend({site : site}, p);
+		var layout  = getLayout(p);
+		writePage(p.settings.file, layout(locals) );
+	});
+
+	function getLayout (p) {
+		var ly = (p.page.layout) ? p.page.layout : site.defaultLayout;
+		return site.layouts[ly];
+	}
+
+	function writePage (file,data) {
+		var fullPagePath = path.resolve(site.cwd,site.out,file);
+		var relPath = '';
+
+		path.dirname(file).split(path.sep).forEach(function(sub) {
+			relPath = path.join(relPath, sub);
+			var folderPath = path.resolve(site.cwd,site.out,relPath);
+			mkDirIfNotExists(folderPath);
+		});
+
+		fs.writeFileSync(fullPagePath, data);
 	}
 }
 
 
-function doGenerate (d) {
-	generatePages(d);
-	generateCss(d);
-}
-
-function generatePages(d) {
-	d.pages.forEach(function(page) {
-		var locals    = object_extend({site : d}, page);
-		var layoutFn  = page.layout;
-
-		layoutFn = (layoutFn) ? d.layouts[layoutFn] : d.layouts[d.defaultLayout];
-		fs.writeFileSync(page.settings.file, layoutFn(locals) );
-	});
-}
-
-
-function generateCss(d) {
-	var pathStyle = path.resolve(d.cwd, d.src, 'styles/style.stylus');
-	var stContents;
-	var outPath = path.resolve(d.out, 'styles/style.css');
+function generateCss (site) {
+	var pathStyle = path.resolve(site.cwd, site.src, 'styles/style.stylus'),
+		outPath   = path.resolve(site.cwd, site.out, 'styles/style.css'),
+		stContents;
 
 	if(fs.existsSync(pathStyle)){
-		
-
 		stContents = fs.readFileSync(pathStyle).toString();
-
-
-		d.stylus.render(stContents, { filename: 'style.css' }, function(err, res) {
-
-			err && console.log(err);
-			console.log(res);
-
-
-			
-			if(!err){
-				
+		site.stylus.render(stContents, {filename: 'style.css'}, function(err, res) {
+			if(!err){				
 				fs.writeFileSync(outPath, res);
+			} else {
+				console.log(err);	
 			}
 		});
 	} 
@@ -82,74 +87,91 @@ function generateCss(d) {
 
 
 
-function loadLayouts (d) {
-	var _layoutsPath = path.resolve(d.cwd, d.src, 'layouts');
+function loadLayouts (site) {
+	var layoutsPath = path.resolve(site.cwd,site.src,'layouts');
 
-	fs.readdirSync(_layoutsPath).forEach(function(ly) {
-		var fullLayoutPath = path.resolve(_layoutsPath, ly),
-			fileContents,
-			layoutName;
+	fs.readdirSync(layoutsPath).forEach(function(ly) {
+		var lyPath = path.resolve(layoutsPath, ly),
+			lyContents,
+			lyName;
 
 		if(path.extname(ly) == JADE) {
-			fileContents  		  = fs.readFileSync(fullLayoutPath);
-			layoutName   		  = path.basename(ly, JADE);
-			d.layouts[layoutName] = d.jade.compile(fileContents);
+			lyContents  		 = fs.readFileSync(lyPath);
+			lyName   		     = path.basename(ly,JADE);
+			site.layouts[lyName] = site.jade.compile(lyContents, {filename : lyPath});
 		}
 	});
 }
 
-function loadPages (d) {
-	var _postPath    = path.resolve(d.cwd, d.src, 'pages');
-	var outPath      = path.resolve(d.cwd, d.out);
+function loadPages (site) {
+	var pagesPath    = path.resolve(site.cwd, site.src, 'pages');
+	var outPath      = path.resolve(site.cwd, site.out);
 
-	//Este lee los posts y los crea
-	fs.readdirSync(_postPath).forEach(function(filePath) {
-		var fullFilePath = path.resolve(_postPath, filePath);
+	loadPageFolder('');
 
-		if(path.extname(filePath) == MD) {
-			var fileContents = fs.readFileSync(fullFilePath).toString();
-			var data, content;
-			var split = fileContents.split( /\n\-{3,6}\n/);
-			content = d.md(fileContents);
+	function loadPageFolder(subPath) {
+		var fullSubPath = path.resolve(pagesPath, subPath);
 
-			var dataPath = path.resolve(_postPath, path.basename(filePath, MD) + '.json');
-			
-			if( fs.existsSync(dataPath) ) {
-				data = require(dataPath);
-			} else {
-				data = {};
+		fs.readdirSync(fullSubPath).forEach(function(fileInSubPath) {
+			var filePath = path.resolve(fullSubPath, fileInSubPath);
+			var fileInfo = fs.statSync(filePath);
+
+			if(fileInfo.isDirectory()) {
+				loadPageFolder(path.join(subPath, fileInSubPath));
+			} else if(path.extname(fileInSubPath) == MD) {
+				loadPage(subPath, fileInSubPath);
 			}
+		});
+	}
 
 
-			
+	function loadPage(subPath, file) {
+		var pageFilePath = path.resolve(pagesPath,subPath,file);	
+		var fileRawName  = path.basename(file, MD);
 
-			var fullOutPathFile = path.resolve(
-				outPath, 
-				path.basename(filePath,MD).concat(HTML)
-			);
+		var fileContents = fs.readFileSync(pageFilePath).toString();
+		var pageData     = getPageData(subPath, fileRawName);
+		var content      = site.md(fileContents); 
 
-			var inheritedData = {};
-
-			var page = object_extend(
-				{},
-				inheritedData,
-				data,
-			 	{
-					uri :'/', content : content
-				}
-			);
-
-			var locals = object_extend(
-				{
-					page :     page,
-					settings : {file : fullOutPathFile}
-				}  
-			);
-
-			d.pages.push(locals);
+		
+		if(subPath == '' && fileRawName == 'index') {
+			uri = '';
+		} else {
+			uri = path.join(subPath, fileRawName);
 		}
-	});
+
+		var outFileName = path.join(uri, 'index.html');
+
+		uri = '/'.concat(uri);
+
+		var page = object_extend(
+			{title : fileRawName},
+			pageData, 
+			{uri : uri , content : content}
+		);
+
+		var settings  = {
+			uri  : uri,
+			file : outFileName
+		};
+
+		site.pages.push({page : page, settings : settings});
+	}
+
+	function getPageData (subPath, fileRawName) {
+		var dataFilePath = path.resolve(pagesPath,subPath,fileRawName + '.json');
+
+		if(fs.existsSync(dataFilePath)) {
+			return require(dataFilePath);
+		}
+
+		return {};
+	}
 }
+
+
+
+/* --- UTILS --- */
 
 function object_extend () {
 	var args =  Array.prototype.slice.call(arguments);
@@ -163,3 +185,7 @@ function object_extend () {
 
 	return obj;
 } 
+
+function mkDirIfNotExists (dirPath) {
+	fs.existsSync(dirPath) || fs.mkdirSync(dirPath);
+}
