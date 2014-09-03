@@ -1,0 +1,15 @@
+{
+	"name" : "fidalgo",
+	"description" : "Semi-dynamic Sites Generator for Node",
+	"version" : "0.1.1",
+	"dependencies" : {
+		"express" : "4.8.7",
+		"jade" : "1.5.0",
+		"marked" : "0.3.2",
+		"stylus" : "0.48.1"
+	},
+	"repository": {
+	    "type": "git",
+	    "url": "https://github.com/inzurrekt/fidalgo"
+	}
+}

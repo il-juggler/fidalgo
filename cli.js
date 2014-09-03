@@ -9,7 +9,7 @@ function FidalgoCLI (d) {
 	this.d = d;
 }
 
-cli.exec = function() {
+cli.exec = function () {
 	if(arguments.length == 0) {
 		this.generate();
 		this.serve();
@@ -19,12 +19,12 @@ cli.exec = function() {
 }
 
 
-cli.generate = function() {
+cli.generate = function () {
 	this.d.generator();
 }
 
 
-cli.serve = function() {
+cli.serve = function () {
 	app.use(express.static(process.cwd() + '/site'));
 	app.listen(4000);
 }
