@@ -25,7 +25,7 @@ chmod a+x fidalgo
  * [gral] Inicialización
 
  * [pages] Datos heredados
- * [pages] **Agregar la opción de datos por <fidalgo:data></fidalgo:data>**
+ * [pages] **Agregar la opción de datos por fidalgo:data**
  * [pages] **Títulos con fecha**
 
  * [docs] Documentación del config
