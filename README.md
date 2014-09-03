@@ -25,5 +25,4 @@ chmod a+x fidalgo
  * Inicialización
  * Agregar la opción de datos por <fidalgo:data></fidalgo:data>
  * Watch
- * Archivos estáticos
  * Documentación del config
