@@ -65,8 +65,6 @@ function generatePages(site) {
 		var fullPagePath = path.resolve(site.cwd,site.out,file);
 		var relPath = '';
 
-
-
 		path.dirname(file).split(path.sep).forEach(function(sub) {
 			relPath = path.join(relPath, sub);
 			var folderPath = path.resolve(site.cwd,site.out,relPath);
@@ -146,7 +144,6 @@ function loadPages (site) {
 
 		// page {fileContents: ---, data ---, content} 
 
-		
 		if(subPath == '' && fileRawName == 'index') {
 			uri = '';
 		} else {

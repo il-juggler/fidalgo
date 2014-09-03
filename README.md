@@ -4,7 +4,7 @@ Fidalgo
 Generador de sitios web / blogs semidinámicos al estilo de Jekyll pero en NodeJS
 
 
-Me gusta el estilo de Jekyll pero no me gusta ruby así que decidí escribir algo parecido, pero a mi manera para nodjs.
+Me gusta el estilo de Jekyll pero no me gusta ruby así que decidí escribir algo parecido, pero a mi manera para node js.
 
 
 Para usar: 
@@ -20,9 +20,13 @@ chmod a+x fidalgo
 
 
 ## Por Hacer
+ * [gral] Estructura de plugins
+ * [gral] Watch
+ * [gral] Inicialización
 
- * Datos heredados
- * Inicialización
- * Agregar la opción de datos por <fidalgo:data></fidalgo:data>
- * Watch
- * Documentación del config
+ * [pages] Datos heredados
+ * [pages] **Agregar la opción de datos por <fidalgo:data></fidalgo:data>**
+ * [pages] **Títulos con fecha**
+
+ * [docs] Documentación del config
+ 
