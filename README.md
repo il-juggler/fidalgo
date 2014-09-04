@@ -20,11 +20,11 @@ chmod a+x fidalgo
 
 
 ## Por Hacer
- * [gral] Estructura de plugins
  * [gral] Watch
  * [gral] Inicialización
+ * [docs] Documentación del config
  * [pages] Datos heredados
  * [pages] **Agregar la opción de datos por fidalgo:data**
  * [pages] **Títulos con fecha**
- * [docs] Documentación del config
+ 
  

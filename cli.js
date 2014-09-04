@@ -1,30 +1,44 @@
 var express    = require('express');
-var app        = express();
-
-var cli = FidalgoCLI.prototype;
+var CLI 	   = FidalgoCLI.prototype;
+var Site       = require('./site');
 
 module.exports = FidalgoCLI;
 
-function FidalgoCLI (d) {
-	this.d = d;
+function FidalgoCLI () {
+	if(!(this instanceof FidalgoCLI)) return new FidalgoCLI();
+	var cli = this, site, app;
+
+	Object.defineProperty(cli,'site',{
+		get : function () {
+			site ||	(site = Site().CWD( process.cwd() ).loadConfig() );
+			return site;
+		}
+	});
+
+	Object.defineProperty(cli,'app',{
+		get : function () {
+			app ||	(app = express());
+			return app;
+		}
+	});
 }
 
-cli.exec = function () {
-	if(arguments.length == 0) {
+CLI.exec = function (args) {
+	if(!(args) || args.length == 0) {
 		this.generate();
 		this.serve();
-	} else {
-		this[arguments[0]]();
-	}
+		return
+	} 
+		
+	this[args[0]]();
+}
+
+CLI.generate = function () {
+	this.site.generate();
 }
 
 
-cli.generate = function () {
-	this.d.generator();
-}
-
-
-cli.serve = function () {
-	app.use(express.static(process.cwd() + '/site'));
-	app.listen(4000);
+CLI.serve = function () {
+	this.app.use(express.static(process.cwd() + '/site'));
+	this.app.listen(4000);
 }

@@ -1,7 +1,7 @@
 {
 	"name" : "fidalgo",
 	"description" : "Semi-dynamic Sites Generator for Node",
-	"version" : "0.1.1",
+	"version" : "0.1.2",
 	"dependencies" : {
 		"express" : "4.8.7",
 		"jade" : "1.5.0",
