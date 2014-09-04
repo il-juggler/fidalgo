@@ -9,6 +9,19 @@ var JSON = '.json';
 var utils = require('../utils');
 
 
+/** 
+*
+* 2014-09-08-nombre-publicacion.md
+*
+*	date  = 2014-09-08
+*   slug  = nombre-publicacion
+*   title = nombre-publicacion
+*
+*
+*
+*/
+
+
 function PagesPlugin () {
 
 	function initialize (site) {
@@ -88,7 +101,6 @@ function PagesPlugin () {
 	}
 
 	function generatePages(site) {
-
 		site.pages.forEach(function(p) {
 			var locals  = utils.extend({site : site}, p);
 			var layout  = getLayout(p);

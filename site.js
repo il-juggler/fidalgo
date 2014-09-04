@@ -48,11 +48,9 @@ SiteProto.CWD = function (i) {
 
 SiteProto.addPlugin = function(plugin) {
   this.$plugins.push(plugin);
-
   if(plugin.register) {
     plugin.register(this);
   }
-
   return this;
 }
 
