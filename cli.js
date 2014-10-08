@@ -1,6 +1,9 @@
 var express    = require('express');
-var CLI 	   = FidalgoCLI.prototype;
+var cliProto   = FidalgoCLI.prototype;
 var Site       = require('./site');
+var utils      = require('./utils');
+var fs         = require('fs');
+var path       = require('path');
 
 module.exports = FidalgoCLI;
 
@@ -10,7 +13,11 @@ function FidalgoCLI () {
 
 	Object.defineProperty(cli,'site',{
 		get : function () {
-			site ||	(site = Site().CWD( process.cwd() ).loadConfig() );
+			if(!site) {
+				site = Site()
+						.CWD( process.cwd() )
+						.loadConfig();
+			}
 			return site;
 		}
 	});
@@ -23,7 +30,7 @@ function FidalgoCLI () {
 	});
 }
 
-CLI.exec = function (args) {
+cliProto.exec = function (args) {
 	if(!(args) || args.length == 0) {
 		this.generate();
 		this.serve();
@@ -33,12 +40,37 @@ CLI.exec = function (args) {
 	this[args[0]]();
 }
 
-CLI.generate = function () {
+cliProto.generate = function () {
 	this.site.generate();
 }
 
 
-CLI.serve = function () {
+cliProto.serve = function () {
 	this.app.use(express.static(process.cwd() + '/site'));
 	this.app.listen(4000);
+}
+
+
+cliProto.init = function () {
+	var src = path.resolve('src');
+	var cfg = path.resolve('fidalgo.config.js');
+
+	var src_src = path.join(__dirname, 'init', 'src');
+	var cfg_src = path.join(__dirname, 'init', 'fidalgo.config.js');
+
+
+	if(! fs.existsSync(cfg) ) {
+		fs.writeFileSync(cfg, fs.readFileSync(cfg_src));
+	} else {
+		console.warn('Ya Existe un fidalgo.config, se usará');
+	}
+
+	if(fs.existsSync(src)) {
+		console.error('El directorio existe :'.concat(src));
+		console.error('Borrelo por su cuenta, después de respaldar');
+		return;
+	}
+
+	utils.copyRecursiveSync(src_src, src);
+	console.log('Archivos Copiados Exitosamente');
 }

@@ -4,6 +4,7 @@ var jade       = require('jade');
 var stylus     = require('stylus');
 var fs         = require('fs');
 var path       = require('path');
+var cheerio    = require('cheerio');
 
 
 marked.setOptions({
@@ -85,5 +86,6 @@ module.exports = {
 	copyRecursiveSync : copyRecursiveSync,
 	deleteFolderRecursive : deleteFolderRecursive,
 	mkDirIfNotExists : mkDirIfNotExists,
-  extend : object_extend
+  extend : object_extend,
+  cheerio : cheerio
 };
